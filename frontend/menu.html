@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FoodieExpress Menu — Browse starters, mains, drinks and desserts. Add to cart and order!" />
+  <title>FoodieExpress — Menu</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/home" class="navbar-brand"><span>🍔</span> FoodieExpress</a>
+    <div class="navbar-links" id="navbar-links"></div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>Our Menu</h1>
+      <p>Handcrafted with love — pick your favorites</p>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="menu-filters">
+      <button class="filter-btn active" data-category="all">All</button>
+      <button class="filter-btn" data-category="starters">🥗 Starters</button>
+      <button class="filter-btn" data-category="mains">🍛 Mains</button>
+      <button class="filter-btn" data-category="drinks">🥤 Drinks</button>
+      <button class="filter-btn" data-category="desserts">🍰 Desserts</button>
+    </div>
+
+    <!-- Menu Grid -->
+    <div class="menu-grid" id="menu-grid">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- Cart FAB -->
+  <button class="cart-fab" onclick="toggleCart()" id="cart-fab">
+    🛒
+    <span class="cart-badge" id="cart-count" style="display:none;">0</span>
+  </button>
+
+  <!-- Cart Overlay -->
+  <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-sidebar" id="cart-sidebar">
+    <div class="cart-header">
+      <h2>🛒 Your Cart</h2>
+      <button class="cart-close" onclick="toggleCart()">✕</button>
+    </div>
+    <div class="cart-items" id="cart-items">
+      <div class="cart-empty">🛒 Your cart is empty</div>
+    </div>
+    <div class="cart-footer">
+      <div class="form-group" style="margin-bottom: 0.75rem;">
+        <label for="checkout-address">Delivery Address</label>
+        <input type="text" id="checkout-address" class="form-control" placeholder="Enter your full address" />
+      </div>
+      <div class="form-group">
+        <label for="checkout-payment">Payment Method</label>
+        <select id="checkout-payment" class="form-control" style="cursor:pointer;">
+          <option value="UPI">UPI</option>
+          <option value="Card">Credit / Debit Card</option>
+          <option value="Cash on Delivery">Cash on Delivery</option>
+        </select>
+      </div>
+      <div class="cart-total">
+        <span>Total</span>
+        <span class="total-price" id="cart-total-price">₹0</span>
+      </div>
+      <button class="btn btn-primary btn-block" id="btn-checkout" onclick="checkout()" disabled>Place Order</button>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/menu.js"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FoodieExpress — Order delicious food from your favorite restaurant. Sign in or create an account." />
+  <title>FoodieExpress — Login</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <div class="auth-wrapper">
+    <!-- Login Section -->
+    <div id="login-section">
+      <div class="auth-card">
+        <h1>🍔 FoodieExpress</h1>
+        <p class="subtitle">Welcome back! Sign in to continue</p>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" class="form-control" placeholder="you@example.com" required />
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" class="form-control" placeholder="••••••••" required />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+        </form>
+        <p class="auth-toggle">Don't have an account? <a id="show-signup">Sign Up</a></p>
+      </div>
+    </div>
+
+    <!-- Signup Section (hidden by default) -->
+    <div id="signup-section" style="display: none;">
+      <div class="auth-card">
+        <h1>🍔 FoodieExpress</h1>
+        <p class="subtitle">Create your account</p>
+        <form id="signup-form">
+          <div class="form-group">
+            <label for="signup-name">Full Name</label>
+            <input type="text" id="signup-name" class="form-control" placeholder="John Doe" required />
+          </div>
+          <div class="form-group">
+            <label for="signup-email">Email</label>
+            <input type="email" id="signup-email" class="form-control" placeholder="you@example.com" required />
+          </div>
+          <div class="form-group">
+            <label for="signup-password">Password</label>
+            <input type="password" id="signup-password" class="form-control" placeholder="Min 6 characters" required minlength="6" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+        </form>
+        <p class="auth-toggle">Already have an account? <a id="show-login">Sign In</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FoodieExpress Home — Check the latest announcements and start ordering." />
+  <title>FoodieExpress — Home</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/home" class="navbar-brand"><span>🍔</span> FoodieExpress</a>
+    <div class="navbar-links" id="navbar-links"></div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>Welcome to FoodieExpress</h1>
+      <p>Your favorite restaurant, now at your fingertips</p>
+    </div>
+
+    <!-- Quick Actions -->
+    <div style="display:flex;gap:1rem;justify-content:center;margin-bottom:2.5rem;flex-wrap:wrap;">
+      <a href="/menu" class="btn btn-primary" style="font-size:1rem;padding:0.8rem 2rem;">🍽️ Browse Menu</a>
+      <a href="/orders" class="btn btn-secondary" style="font-size:1rem;padding:0.8rem 2rem;">📦 My Orders</a>
+    </div>
+
+    <!-- Notice Board -->
+    <div class="notice-board">
+      <h2>📢 Notice Board</h2>
+      <div id="notice-list">
+        <div class="spinner"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/home.js"></script>
+</body>
+</html>

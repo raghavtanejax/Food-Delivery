@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FoodieExpress Admin Dashboard — Manage menu, orders, and announcements." />
+  <title>FoodieExpress — Admin Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/home" class="navbar-brand"><span>🍔</span> FoodieExpress</a>
+    <div class="navbar-links" id="navbar-links"></div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>Admin Dashboard</h1>
+      <p>Manage your restaurant in one place</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="admin-stats">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-items">—</div>
+        <div class="stat-label">Menu Items</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-orders">—</div>
+        <div class="stat-label">Total Orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-pending">—</div>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-revenue">—</div>
+        <div class="stat-label">Revenue</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="menu">🍽️ Menu</button>
+      <button class="admin-tab" data-tab="orders">📦 Orders</button>
+      <button class="admin-tab" data-tab="notices">📢 Notices</button>
+    </div>
+
+    <!-- Menu Section -->
+    <div class="admin-section active" id="section-menu">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 style="font-size:1.2rem;">Menu Items</h2>
+        <button class="btn btn-primary btn-sm" onclick="openAddItem()">+ Add Item</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Available</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="menu-table-body">
+            <tr><td colspan="5"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div class="admin-section" id="section-orders">
+      <h2 style="font-size:1.2rem;margin-bottom:1rem;">All Orders</h2>
+      <div id="admin-orders-list"><div class="spinner"></div></div>
+    </div>
+
+    <!-- Notices Section -->
+    <div class="admin-section" id="section-notices">
+      <h2 style="font-size:1.2rem;margin-bottom:1rem;">Post Announcement</h2>
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="form-group">
+          <label for="notice-title">Title</label>
+          <input type="text" id="notice-title" class="form-control" placeholder="e.g. Open late tonight!" />
+        </div>
+        <div class="form-group">
+          <label for="notice-message">Message</label>
+          <textarea id="notice-message" class="form-control" rows="3" placeholder="Enter your announcement..."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="postNotice()">📢 Post Notice</button>
+      </div>
+      <h3 style="font-size:1rem;margin-bottom:0.75rem;color:var(--text-secondary);">Previous Notices</h3>
+      <div id="admin-notices-list"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Item Modal -->
+  <div class="modal-overlay" id="item-modal">
+    <div class="modal">
+      <h2 id="modal-title">Add Menu Item</h2>
+      <div class="form-group">
+        <label for="item-name">Name</label>
+        <input type="text" id="item-name" class="form-control" placeholder="Item name" />
+      </div>
+      <div class="form-group">
+        <label for="item-desc">Description</label>
+        <input type="text" id="item-desc" class="form-control" placeholder="Short description" />
+      </div>
+      <div class="form-group">
+        <label for="item-price">Price (₹)</label>
+        <input type="number" id="item-price" class="form-control" placeholder="299" min="0" step="1" />
+      </div>
+      <div class="form-group">
+        <label for="item-category">Category</label>
+        <select id="item-category" class="form-control">
+          <option value="starters">Starters</option>
+          <option value="mains">Mains</option>
+          <option value="drinks">Drinks</option>
+          <option value="desserts">Desserts</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="item-image">Image URL (optional)</label>
+        <input type="text" id="item-image" class="form-control" placeholder="https://..." />
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:0.5rem;">
+        <input type="checkbox" id="item-available" checked />
+        <label for="item-available" style="margin:0;">Available</label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeItemModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveItem()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
