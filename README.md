@@ -147,6 +147,7 @@ Food-Delivery/
 | DELETE | `/api/notices/{id}` | Delete notice | Admin |
 
 ---
+---
 
 ## 📝 License
 
