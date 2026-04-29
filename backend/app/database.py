@@ -32,6 +32,27 @@ async def init_db():
 
     print("Database indexes initialized.")
 
+    # Automatically create the default admin user if they don't exist
+    from app.utils.auth import hash_password
+    from datetime import datetime, timezone
+
+    admin_email = "admin@foodie.com"
+    existing_admin = await users_collection.find_one({"email": admin_email})
+    
+    if not existing_admin:
+        admin_user = {
+            "name": "Admin",
+            "full_name": "System Administrator",
+            "email": admin_email,
+            "password": hash_password("admin123"),
+            "role": "admin",
+            "phone_number": "0000000000",
+            "dob": "1990-01-01",
+            "created_at": datetime.now(timezone.utc)
+        }
+        await users_collection.insert_one(admin_user)
+        print(f"Default admin created automatically: {admin_email} / admin123")
+
 
 async def close_db():
     """Close the MongoDB connection."""
