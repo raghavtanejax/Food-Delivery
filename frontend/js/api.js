@@ -2,7 +2,7 @@
  * api.js — Centralized API helper with JWT token management.
  */
 
-const API_BASE = '/api';
+const API_BASE = 'http://127.0.0.1:8001/api';
 
 /** Get the stored JWT token. */
 function getToken() {
