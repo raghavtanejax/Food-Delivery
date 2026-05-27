@@ -3,6 +3,7 @@
  */
 
 let menuItems = [];
+let recommendedItems = [];
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 let currentFilter = 'all';
 
@@ -19,7 +20,12 @@ async function loadMenu() {
   grid.innerHTML = '<div class="spinner"></div>';
 
   try {
-    menuItems = await apiRequest('/menu/');
+    const [menuRes, recRes] = await Promise.all([
+      apiRequest('/menu/'),
+      apiRequest('/menu/recommended')
+    ]);
+    menuItems = menuRes;
+    recommendedItems = recRes;
     renderMenu();
   } catch (err) {
     grid.innerHTML = '<div class="empty-state"><div class="emoji">😞</div><h3>Failed to load menu</h3></div>';
@@ -28,7 +34,13 @@ async function loadMenu() {
 
 function renderMenu() {
   const grid = document.getElementById('menu-grid');
-  const filtered = currentFilter === 'all' ? menuItems : menuItems.filter(i => i.category === currentFilter);
+  
+  let filtered = menuItems;
+  if (currentFilter === 'recommended') {
+    filtered = recommendedItems;
+  } else if (currentFilter !== 'all') {
+    filtered = menuItems.filter(i => i.category === currentFilter);
+  }
 
   if (filtered.length === 0) {
     grid.innerHTML = '<div class="empty-state"><div class="emoji">🍽️</div><h3>No items in this category</h3></div>';
@@ -179,25 +191,88 @@ async function checkout() {
   const btn = document.getElementById('btn-checkout');
   try {
     btn.disabled = true;
-    btn.textContent = 'Placing order...';
+    btn.textContent = 'Processing...';
 
-    await apiRequest('/orders/', {
-      method: 'POST',
-      body: JSON.stringify({ items: cart, address, payment_method: paymentMethod }),
-    });
+    if (paymentMethod === 'Cash on Delivery') {
+      await placeFinalOrder(address, paymentMethod);
+    } else {
+      // Razorpay Flow
+      const totalAmount = cart.reduce((sum, c) => sum + c.price * c.quantity, 0);
+      const rzpOrderData = await apiRequest('/orders/create-razorpay-order', {
+        method: 'POST',
+        body: JSON.stringify({ amount: totalAmount })
+      });
 
-    cart = [];
-    saveCart();
-    updateCartUI();
-    toggleCart();
-    showToast('Order placed successfully! 🎉', 'success');
-    setTimeout(() => navigateTo('/orders'), 1000);
+      const options = {
+        key: rzpOrderData.key_id,
+        amount: totalAmount * 100,
+        currency: "INR",
+        name: "FoodieExpress",
+        description: "Order Payment",
+        order_id: rzpOrderData.order_id,
+        handler: async function (response) {
+          try {
+            await placeFinalOrder(address, paymentMethod, {
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature
+            });
+          } catch (err) {
+            showToast(err.message, 'error');
+          }
+        },
+        prefill: {
+          name: "Test User",
+          email: "test@example.com",
+          contact: "9999999999"
+        },
+        theme: {
+          color: "#f97316"
+        },
+        modal: {
+          ondismiss: function() {
+            btn.disabled = false;
+            btn.textContent = 'Place Order';
+          }
+        }
+      };
+      
+      const rzp = new Razorpay(options);
+      rzp.on('payment.failed', function (response){
+        showToast('Payment Failed: ' + response.error.description, 'error');
+      });
+      rzp.open();
+    }
   } catch (err) {
     showToast(err.message, 'error');
-  } finally {
     btn.disabled = false;
     btn.textContent = 'Place Order';
   }
+}
+
+async function placeFinalOrder(address, paymentMethod, razorpayData = {}) {
+  const btn = document.getElementById('btn-checkout');
+  btn.textContent = 'Placing order...';
+  
+  await apiRequest('/orders/', {
+    method: 'POST',
+    body: JSON.stringify({ 
+      items: cart, 
+      address, 
+      payment_method: paymentMethod,
+      ...razorpayData
+    }),
+  });
+
+  cart = [];
+  saveCart();
+  updateCartUI();
+  toggleCart();
+  showToast('Order placed successfully! 🎉', 'success');
+  setTimeout(() => navigateTo('/orders'), 1000);
+  
+  btn.disabled = false;
+  btn.textContent = 'Place Order';
 }
 
 function escapeHtml(text) {

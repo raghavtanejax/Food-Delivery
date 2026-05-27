@@ -19,6 +19,7 @@ class MenuItemCreate(BaseModel):
     category: MenuCategory
     image_url: Optional[str] = ""
     available: bool = True
+    is_recommended: bool = False
 
 
 class MenuItemUpdate(BaseModel):
@@ -28,6 +29,7 @@ class MenuItemUpdate(BaseModel):
     category: Optional[MenuCategory] = None
     image_url: Optional[str] = None
     available: Optional[bool] = None
+    is_recommended: Optional[bool] = None
 
 
 class MenuItemResponse(BaseModel):
@@ -38,3 +40,4 @@ class MenuItemResponse(BaseModel):
     category: str
     image_url: str
     available: bool
+    is_recommended: bool

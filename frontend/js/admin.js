@@ -61,6 +61,9 @@ async function loadMenuAdmin() {
         <td>${formatPrice(item.price)}</td>
         <td>${item.available ? '✅' : '❌'}</td>
         <td>
+          <input type="checkbox" onchange="toggleRecommend('${item.id}', this.checked)" ${item.is_recommended ? 'checked' : ''} style="cursor:pointer; width:18px; height:18px;" />
+        </td>
+        <td>
           <button class="btn btn-secondary btn-sm" onclick="openEditItem('${item.id}', ${JSON.stringify(item).replace(/"/g, '&quot;')})">Edit</button>
           <button class="btn btn-danger btn-sm" onclick="deleteItem('${item.id}')">Delete</button>
         </td>
@@ -80,6 +83,7 @@ function openAddItem() {
   document.getElementById('item-category').value = 'starters';
   document.getElementById('item-image').value = '';
   document.getElementById('item-available').checked = true;
+  document.getElementById('item-recommended').checked = false;
   document.getElementById('item-modal').classList.add('open');
 }
 
@@ -92,6 +96,7 @@ function openEditItem(id, item) {
   document.getElementById('item-category').value = item.category;
   document.getElementById('item-image').value = item.image_url || '';
   document.getElementById('item-available').checked = item.available;
+  document.getElementById('item-recommended').checked = item.is_recommended || false;
   document.getElementById('item-modal').classList.add('open');
 }
 
@@ -107,6 +112,7 @@ async function saveItem() {
     category: document.getElementById('item-category').value,
     image_url: document.getElementById('item-image').value,
     available: document.getElementById('item-available').checked,
+    is_recommended: document.getElementById('item-recommended').checked,
   };
 
   try {
@@ -134,6 +140,19 @@ async function deleteItem(id) {
     await loadStats();
   } catch (err) {
     showToast(err.message, 'error');
+  }
+}
+
+async function toggleRecommend(id, isRecommended) {
+  try {
+    await apiRequest(`/menu/${id}`, { 
+      method: 'PUT', 
+      body: JSON.stringify({ is_recommended: isRecommended }) 
+    });
+    showToast(isRecommended ? 'Item marked as Recommended 🔥' : 'Recommendation removed', 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+    await loadMenuAdmin(); // Revert UI
   }
 }
 

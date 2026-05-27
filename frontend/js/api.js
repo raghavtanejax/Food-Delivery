@@ -2,7 +2,10 @@
  * api.js — Centralized API helper with JWT token management.
  */
 
-const API_BASE = 'http://127.0.0.1:8001/api';
+const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const API_BASE = isLocal 
+  ? 'http://127.0.0.1:8000/api' 
+  : `${window.location.protocol}//${window.location.hostname}:${window.location.port || (window.location.protocol === 'https:' ? 443 : 80)}/api`;
 
 /** Get the stored JWT token. */
 function getToken() {

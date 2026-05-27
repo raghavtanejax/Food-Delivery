@@ -4,8 +4,13 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from app.database import orders_collection, menu_collection
 from app.models.order import OrderCreate, OrderStatusUpdate, OrderResponse
 from app.utils.deps import get_current_user, require_admin
+from app.config import RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
 from bson import ObjectId
 from datetime import datetime, timezone
+from pydantic import BaseModel
+import razorpay
+
+razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 
 router = APIRouter(prefix="/api/orders", tags=["Orders"])
 
@@ -21,6 +26,7 @@ def serialize_order(order: dict) -> dict:
         "status": order["status"],
         "address": order.get("address", ""),
         "payment_method": order.get("payment_method", "Cash on Delivery"),
+        "payment_status": order.get("payment_status", "Pending"),
         "created_at": order["created_at"].isoformat() if isinstance(order["created_at"], datetime) else str(order["created_at"]),
     }
 
@@ -45,6 +51,21 @@ async def place_order(order: OrderCreate, user=Depends(get_current_user)):
 
     total = sum(item.price * item.quantity for item in order.items)
 
+    payment_status = "Pending"
+    if order.payment_method != "Cash on Delivery":
+        if not order.razorpay_payment_id or not order.razorpay_order_id or not order.razorpay_signature:
+            raise HTTPException(status_code=400, detail="Missing Razorpay payment details")
+        
+        try:
+            razorpay_client.utility.verify_payment_signature({
+                'razorpay_order_id': order.razorpay_order_id,
+                'razorpay_payment_id': order.razorpay_payment_id,
+                'razorpay_signature': order.razorpay_signature
+            })
+            payment_status = "Completed"
+        except razorpay.errors.SignatureVerificationError:
+            raise HTTPException(status_code=400, detail="Invalid payment signature")
+
     order_doc = {
         "user_id": str(user["_id"]),
         "user_name": user["name"],
@@ -53,12 +74,37 @@ async def place_order(order: OrderCreate, user=Depends(get_current_user)):
         "status": "pending",
         "address": order.address,
         "payment_method": order.payment_method,
+        "payment_status": payment_status,
+        "razorpay_payment_id": order.razorpay_payment_id,
+        "razorpay_order_id": order.razorpay_order_id,
         "created_at": datetime.now(timezone.utc),
     }
 
     result = await orders_collection.insert_one(order_doc)
     order_doc["_id"] = result.inserted_id
     return serialize_order(order_doc)
+
+
+class RazorpayOrderRequest(BaseModel):
+    amount: float
+
+@router.post("/create-razorpay-order")
+async def create_razorpay_order(req: RazorpayOrderRequest, user=Depends(get_current_user)):
+    """Create an order ID for Razorpay frontend popup."""
+    try:
+        # amount is in INR, Razorpay expects paise (multiply by 100)
+        amount_in_paise = int(req.amount * 100)
+        order_data = {
+            "amount": amount_in_paise,
+            "currency": "INR",
+            "receipt": f"receipt_{user['_id']}_{int(datetime.now().timestamp())}",
+            "payment_capture": 1
+        }
+        razorpay_order = razorpay_client.order.create(data=order_data)
+        return {"order_id": razorpay_order["id"], "key_id": RAZORPAY_KEY_ID}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @router.get("/my", response_model=list[OrderResponse])

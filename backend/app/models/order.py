@@ -23,6 +23,9 @@ class OrderCreate(BaseModel):
     items: List[OrderItem]
     address: str
     payment_method: str = "Cash on Delivery"
+    razorpay_payment_id: Optional[str] = None
+    razorpay_order_id: Optional[str] = None
+    razorpay_signature: Optional[str] = None
 
 
 class OrderStatusUpdate(BaseModel):
@@ -38,4 +41,5 @@ class OrderResponse(BaseModel):
     status: str
     address: str
     payment_method: str
+    payment_status: str
     created_at: str
