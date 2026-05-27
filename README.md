@@ -68,7 +68,9 @@ This creates:
 
 ```bash
 cd backend
-uvicorn app.main:app --reload --port 8000
+
+python -m uvicorn app.main:app --reload --port 8001
+
 ```
 
 ### Step 5: Open the App
